@@ -1,4 +1,4 @@
-// 单条消息类型
+// 单条消息类型定义
 export interface Message {
   id: string;
   content: string;
@@ -6,7 +6,7 @@ export interface Message {
   timestamp: number;
 }
 
-// 会话（对话）类型
+// 会话（对话）类型定义
 export interface Session {
   id: string;
   title: string; // 会话标题

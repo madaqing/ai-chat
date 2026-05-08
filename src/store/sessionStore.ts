@@ -1,11 +1,15 @@
-// 会话管理（新建/切换/删除）
+// 用 Zustand（React 状态管理库）写的AI 聊天会话管理器，
+// 功能和 ChatGPT 侧边栏一模一样：
+// 管理多个对话、切换、删除、发消息、刷新不丢失（持久化）。
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Session, Message } from "../types/chat";
 
+// 定义状态类型（规则）：有什么数据、有什么方法。
 interface SessionState {
-  sessions: Session[];
-  currentSessionId: string | null;
+  sessions: Session[]; // 所有会话列表
+  currentSessionId: string | null; // 当前打开的会话ID
 
   // 新建会话
   createSession: () => void;
@@ -16,7 +20,7 @@ interface SessionState {
   // 给当前会话添加消息
   addMessageToCurrentSession: (message: Message) => void;
 }
-
+// 创建状态仓库（核心）
 export const useSessionStore = create<SessionState>()(
   persist(
     (set, get) => ({
@@ -26,15 +30,15 @@ export const useSessionStore = create<SessionState>()(
       // 新建对话
       createSession: () => {
         const newSession: Session = {
-          id: Date.now().toString(),
+          id: Date.now().toString(), // 用时间戳当唯一ID
           title: `对话 ${get().sessions.length + 1}`,
           createTime: Date.now(),
           messages: [],
         };
 
         set((state) => ({
-          sessions: [...state.sessions, newSession],
-          currentSessionId: newSession.id,
+          sessions: [...state.sessions, newSession], // 追加到列表
+          currentSessionId: newSession.id, // 自动切换到新会话
         }));
       },
 
@@ -65,7 +69,7 @@ export const useSessionStore = create<SessionState>()(
           return {
             sessions: state.sessions.map((s) =>
               s.id === sessionId
-                ? { ...s, messages: [...s.messages, message] }
+                ? { ...s, messages: [...s.messages, message] } // 追加消息
                 : s
             ),
           };
