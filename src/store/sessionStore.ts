@@ -6,10 +6,22 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Session, Message } from "../types/chat";
 
+// 定义用户类型
+interface User {
+  id: string;
+  email: string;
+  username: string;
+}
+
 // 定义状态类型（规则）：有什么数据、有什么方法。
 interface SessionState {
   sessions: Session[]; // 所有会话列表
   currentSessionId: string | null; // 当前打开的会话ID
+
+  // 认证相关
+  isAuthenticated: boolean;
+  user: User | null;
+  token: string | null;
 
   // 新建会话
   createSession: () => void;
@@ -19,6 +31,10 @@ interface SessionState {
   deleteSession: (id: string) => void;
   // 给当前会话添加消息
   addMessageToCurrentSession: (message: Message) => void;
+
+  // 认证方法
+  login: (user: User, token: string) => void;
+  logout: () => void;
 }
 // 创建状态仓库（核心）
 export const useSessionStore = create<SessionState>()(
@@ -26,6 +42,11 @@ export const useSessionStore = create<SessionState>()(
     (set, get) => ({
       sessions: [],
       currentSessionId: null,
+
+      // 认证相关
+      isAuthenticated: false,
+      user: null,
+      token: null,
 
       // 新建对话
       createSession: () => {
@@ -74,9 +95,34 @@ export const useSessionStore = create<SessionState>()(
             ),
           };
         }),
+
+      // 登录
+      login: (user, token) =>
+        set({
+          isAuthenticated: true,
+          user,
+          token,
+        }),
+
+      // 登出
+      logout: () =>
+        set({
+          isAuthenticated: false,
+          user: null,
+          token: null,
+          sessions: [],
+          currentSessionId: null,
+        }),
     }),
     {
       name: "ai-sessions-storage", // localStorage 持久化 key
+      partialize: (state) => ({
+        sessions: state.sessions,
+        currentSessionId: state.currentSessionId,
+        isAuthenticated: state.isAuthenticated,
+        user: state.user,
+        token: state.token,
+      }),
     }
   )
 );

@@ -1,5 +1,6 @@
 // 左侧会话栏
 import { useSessionStore } from "../../store/sessionStore";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
   const {
@@ -8,10 +9,24 @@ const Sidebar = () => {
     createSession,
     setCurrentSession,
     deleteSession,
+    logout,
+    user,
   } = useSessionStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="p-3 h-full flex flex-col">
+      {/* 用户信息 */}
+      <div className="mb-4 text-center">
+        <div className="text-sm font-medium">{user?.username}</div>
+        <div className="text-xs text-gray-500">{user?.email}</div>
+      </div>
+
       {/* 新建对话 */}
       <button
         onClick={createSession}
@@ -46,6 +61,14 @@ const Sidebar = () => {
           <div className="text-gray-400 text-center mt-10">暂无会话</div>
         )}
       </div>
+
+      {/* 登出按钮 */}
+      <button
+        onClick={handleLogout}
+        className="w-full py-2 rounded-lg bg-red-500 text-white mt-4 hover:bg-red-600 transition"
+      >
+        登出
+      </button>
     </div>
   );
 };
