@@ -1,5 +1,5 @@
 import request from '../utils/request';
-import type { RegisterParams, AuthResponse } from '../types/auth';
+import type { RegisterParams, AuthResponse,LoginParams } from '../types/auth';
 
 // 注册接口
 export const authApi = {
@@ -7,8 +7,11 @@ export const authApi = {
     return request.post('/auth/register', data);
   },
 
-  // 以后可以加 login、logout 等
-  async login(data: { username: string; password: string }) {
+  async login(data: LoginParams):Promise<AuthResponse> { 
     return request.post('/auth/login', data);
+  },
+
+  async refreshToken(refreshToken: string): Promise<AuthResponse> {
+    return request.post('/auth/refresh', { refreshToken });
   }
 };

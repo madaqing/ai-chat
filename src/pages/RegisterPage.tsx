@@ -28,7 +28,7 @@ const RegisterPage = () => {
 
     try {
       const response = await authApi.register({ username, email, password });
-      login(response.user, response.token);
+      login(response.user, response.token, response.refreshToken);
       navigate('/');
     } catch (err) {
       console.error('注册失败：', err);

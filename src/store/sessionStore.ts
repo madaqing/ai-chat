@@ -5,13 +5,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Session, Message } from "../types/chat";
-
-// 定义用户类型
-interface User {
-  id: string;
-  email: string;
-  username: string;
-}
+import type { User } from "../types/auth";
 
 // 定义状态类型（规则）：有什么数据、有什么方法。
 interface SessionState {
@@ -21,7 +15,9 @@ interface SessionState {
   // 认证相关
   isAuthenticated: boolean;
   user: User | null;
-  token: string | null;
+  token: string | null;  // accessToken
+  refreshToken: string | null;  // refreshToken
+
 
   // 新建会话
   createSession: () => void;
@@ -33,9 +29,12 @@ interface SessionState {
   addMessageToCurrentSession: (message: Message) => void;
 
   // 认证方法
-  login: (user: User, token: string) => void;
+  login: (user: User, token: string, refreshToken: string) => void; // 登录时需要保存 refreshToken
+  refreshTokenFn: (newToken: string, newRefreshToken: string) => void; // 刷新 token 的方法
   logout: () => void;
 }
+
+
 // 创建状态仓库（核心）
 export const useSessionStore = create<SessionState>()(
   persist(
@@ -47,6 +46,7 @@ export const useSessionStore = create<SessionState>()(
       isAuthenticated: false,
       user: null,
       token: null,
+      refreshToken: null,
 
       // 新建对话
       createSession: () => {
@@ -97,11 +97,19 @@ export const useSessionStore = create<SessionState>()(
         }),
 
       // 登录
-      login: (user, token) =>
+      login: (user, token, refreshToken) =>
         set({
           isAuthenticated: true,
           user,
           token,
+          refreshToken
+        }),
+
+      // 刷新 token
+      refreshTokenFn: (newToken, newRefreshToken) =>
+        set({
+          token: newToken,
+          refreshToken: newRefreshToken
         }),
 
       // 登出
@@ -110,6 +118,7 @@ export const useSessionStore = create<SessionState>()(
           isAuthenticated: false,
           user: null,
           token: null,
+          refreshToken: null,
           sessions: [],
           currentSessionId: null,
         }),
@@ -122,6 +131,7 @@ export const useSessionStore = create<SessionState>()(
         isAuthenticated: state.isAuthenticated,
         user: state.user,
         token: state.token,
+        refreshToken: state.refreshToken,
       }),
     }
   )

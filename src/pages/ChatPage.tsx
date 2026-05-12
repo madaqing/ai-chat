@@ -17,6 +17,7 @@ const ChatPage = () => {
   const [inputText, setInputText] = useState("");
 
   // 当组件加载时，如果没有当前会话，则创建一个新的会话
+  // 只有在初始化且完全没有会话时，才创建
   useEffect(() => {
     if (!currentSession) {
       createSession();

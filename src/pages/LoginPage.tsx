@@ -20,7 +20,7 @@ const LoginPage = () => {
 
     try {
       const response = await authApi.login({ email, password });
-      login(response.user, response.token);
+      login(response.user, response.token, response.refreshToken);
       navigate('/');
     } catch (err) {
       console.error('登录失败：', err);
